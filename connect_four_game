@@ -1,0 +1,56 @@
+# connect_four_game.py
+#
+# Playing the game
+
+from connect_four_board import Board
+from connect_four_player import Player
+import random
+
+def connect_four(p1, p2):
+    """ Plays a game of Connect Four between two players.
+        p1 and p2 are Player objects (or subclasses like RandomPlayer).
+        Returns the final Board object after the game ends.
+    """
+    # Check that players use different and valid checkers
+    if p1.checker not in 'XO' or p2.checker not in 'XO' or p1.checker == p2.checker:
+        print('Need one X player and one O player.')
+        return None
+
+    print('Welcome to Connect Four!\n')
+    b = Board(6, 7)
+    print(b)
+
+    while True:
+        if process_move(p1, b):
+            return b
+        if process_move(p2, b):
+            return b
+
+def process_move(p, b):
+    """ Processes a move for player `p` on board `b`.
+        Prints move details, applies it, and checks for win/tie.
+        Returns True if the game has ended.
+    """
+    print(f"{p}'s turn")
+    next_move_column = p.next_move(b)
+    b.add_checker(p.checker, next_move_column)
+    print()
+    print(b)
+
+    if b.is_win_for(p.checker):
+        print(f"Player {p.checker} wins in {p.num_moves} moves.")
+        print("Congratulations!")
+        return True
+    elif b.is_full():
+        print("It's a tie!")
+        return True
+    return False
+
+class RandomPlayer(Player):
+    """ A computer player that chooses its next move randomly. """
+    
+    def next_move(self, b):
+        """ Returns a random valid column from board `b`. """
+        self.num_moves += 1
+        column_options = [col for col in range(b.width) if b.can_add_to(col)]
+        return random.choice(column_options)
